@@ -155,7 +155,7 @@ function createChatbotUI() {
       </div>
     </div>
     
-    <!-- Minimized chat button -->
+    <!-- Minimized chat button - Perfectly centered vertical layout -->
     <div id="chat-minimized" class="abeai-minimized">
       <div class="abeai-bubble-hint">Chat with AbeAI</div>
       <div class="abeai-bubble">
@@ -397,46 +397,55 @@ function createChatbotUI() {
       opacity: 0.9;
     }
     
-    /* Minimized chat button */
+    /* Minimized chat button - Perfectly centered vertical layout */
     .abeai-minimized {
       position: fixed;
       bottom: 30px;
       right: 30px;
       z-index: 9999;
       cursor: pointer;
-      text-align: center;
       display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
     }
     
+    /* Top text box */
     .abeai-bubble-hint {
       background: var(--primary);
       color: white;
-      padding: 5px 10px;
+      padding: 8px 15px;
       border-radius: 6px;
       font-size: 14px;
-      margin-bottom: 5px;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: var(--transition);
+      font-weight: 500;
+      width: max-content;
+      text-align: center;
     }
     
-    .abeai-minimized:hover .abeai-bubble-hint,
-    .abeai-minimized:hover .abeai-bubble-prompt {
-      opacity: 1;
-      transform: translateY(0);
+    /* Bottom text box */
+    .abeai-bubble-prompt {
+      background: var(--primary);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      width: max-content;
+      text-align: center;
     }
     
+    /* Centered logo bubble with enhanced animation */
     .abeai-bubble {
       width: 60px;
       height: 60px;
       background: var(--background);
       border-radius: 50%;
       box-shadow: 0 4px 10px var(--shadow);
-      position: relative;
-      animation: pulse 1.5s infinite;
       display: flex;
       align-items: center;
       justify-content: center;
+      animation: pulseBigger 2s infinite;
     }
     
     .abeai-bubble-logo {
@@ -444,22 +453,19 @@ function createChatbotUI() {
       height: 35px;
     }
     
-    .abeai-bubble-prompt {
-      background: var(--primary);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-top: 5px;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: var(--transition);
+    /* Stronger pulse animation */
+    @keyframes pulseBigger {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
     }
     
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    /* Mobile responsiveness for minimized state */
+    @media (max-width: 480px) {
+      .abeai-minimized {
+        bottom: 20px;
+        right: 20px;
+      }
     }
   `;
   
@@ -496,14 +502,14 @@ document.addEventListener("DOMContentLoaded", function() {
     chatMinimized.style.display = 'none';
   } else {
     chatContainer.style.display = 'none';
-    chatMinimized.style.display = 'block';
+    chatMinimized.style.display = 'flex'; // Changed from 'block' to 'flex'
   }
   
   // Toggle button handler
   chatToggle.onclick = () => {
     isExpanded = !isExpanded;
     chatContainer.style.display = isExpanded ? 'flex' : 'none';
-    chatMinimized.style.display = isExpanded ? 'none' : 'block';
+    chatMinimized.style.display = isExpanded ? 'none' : 'flex'; // Changed from 'block' to 'flex'
     chatToggle.textContent = isExpanded ? '−' : '+';
   };
   
