@@ -1,7 +1,7 @@
 console.log("Chatbot script started");
+const supabaseUrl = "https://haxnyisxrvdetcqaftdb.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheG55aXN4cnZkZXRjcWFmdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MDgyMzIsImV4cCI6MjA1ODM4NDIzMn0.Nk9n9dkYEwIfY-LgAblzcVcRqyylsvTIh6p_Rh1eNW0";
 
-const supabaseUrl = "https://ekfpageqwbwvwbcoudig.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZnBhZ2Vxd2J3dndiY291ZGlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3NjgzNjgsImV4cCI6MjA1NzM0NDM2OH0.2ZAMOZTraAbn1C_HmpbLf50xOvl6LfoHQ0kjtuBQ-9M";
 const logoDirectUrl = "/abeailogo.png"; // Corrected to match your uploaded image
 
 async function sendMessage(userMessage, userInfo = null, metricsUpdate = null, activityUpdate = null) {
