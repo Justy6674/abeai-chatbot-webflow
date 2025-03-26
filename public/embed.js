@@ -16,7 +16,7 @@ async function sendMessage(userMessage, userInfo = null, metricsUpdate = null, a
     chatMessages.appendChild(loadingMessage);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/send_message`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
