@@ -2,7 +2,7 @@ console.log("🟢 Chatbot script started");
 
 const supabaseUrl = "https://haxnyisxrvdetcqaftdb.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheG55aXN4cnZkZXRjcWFmdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MDgyMzIsImV4cCI6MjA1ODM4NDIzMn0.Nk9n9dkYEwIfY-LgAblzcVcRqyylsvTIh6p_Rh1eNW0";
-const logoDirectUrl = "https://abeai-chatbot-webflow-git-main-downscale.vercel.app/abeailogo.png";
+const logoDirectUrl = "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png";
 
 async function sendMessage(userMessage, userInfo = null, metricsUpdate = null, activityUpdate = null) {
   try {
