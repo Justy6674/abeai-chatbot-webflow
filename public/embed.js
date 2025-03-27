@@ -4,7 +4,7 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.5, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.6, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
