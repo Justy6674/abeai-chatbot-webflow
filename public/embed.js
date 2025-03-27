@@ -4,7 +4,7 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.6, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.7, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
@@ -46,8 +46,9 @@ if (window.abeaiInitialized) {
     generic: "I'm here to help with your health journey. Please ask a specific question about food, exercise, or calorie goals."
   };
 
-  // Track if welcome message has been sent
+  // Track if welcome message has been sent and if presets have been used
   let welcomeSent = false;
+  let presetsUsed = false;
 
   // Send message via Cloudflare Worker
   async function sendMessage(userMessage, additionalData = {}) {
@@ -193,7 +194,7 @@ if (window.abeaiInitialized) {
         position: fixed;
         bottom: 30px;
         right: 30px;
-        width: 360px;
+        width: 400px; /* Expanded width on desktop */
         max-height: 80vh;
         max-width: calc(100vw - 40px);
         background: #ffffff;
@@ -206,7 +207,12 @@ if (window.abeaiInitialized) {
         overflow: hidden;
       }
       @media (max-width: 768px) {
-        .abeai-chatbox { width: calc(100vw - 40px); max-height: 70vh; bottom: 20px; right: 20px; }
+        .abeai-chatbox { 
+          width: calc(100vw - 40px); 
+          max-height: 70vh; 
+          bottom: 20px; 
+          right: 20px; 
+        }
       }
       .abeai-header {
         background: var(--background);
@@ -224,7 +230,20 @@ if (window.abeaiInitialized) {
       .abeai-logo { width: 30px; height: 30px; margin-right: 10px; }
       .abeai-highlight { color: var(--primary); font-weight: 700; }
       .abeai-toggle { cursor: pointer; font-size: 20px; color: var(--text); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
-      .abeai-messages { flex-grow: 1; overflow-y: auto; padding: 16px; font-size: 16px; height: 320px; scroll-behavior: smooth; background: #fafafa; }
+      .abeai-messages { 
+        flex-grow: 1; 
+        overflow-y: auto; 
+        padding: 16px; 
+        font-size: 16px; 
+        height: 400px; /* Expanded height on desktop */
+        scroll-behavior: smooth; 
+        background: #fafafa; 
+      }
+      @media (max-width: 768px) {
+        .abeai-messages { 
+          height: 300px; /* Adjusted height on mobile */
+        }
+      }
       .abeai-message { margin-bottom: 16px; display: flex; align-items: flex-start; }
       .abeai-avatar { width: 36px; height: 36px; margin-right: 12px; border-radius: 50%; border: 2px solid var(--background); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
       .abeai-message-content { background: var(--background); color: var(--dark-text); border-radius: 12px; padding: 16px; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--secondary); font-weight: 500; }
@@ -238,7 +257,26 @@ if (window.abeaiInitialized) {
       .abeai-typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
       .abeai-typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
       @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-      .abeai-quick-options { padding: 12px; background: var(--background); display: block; border-top: 1px solid var(--secondary); }
+      .abeai-quick-options { 
+        padding: 12px; 
+        background: var(--background); 
+        display: block; 
+        border-top: 1px solid var(--secondary); 
+        max-height: 150px; 
+        overflow-y: auto; 
+        scrollbar-width: thin; 
+        scrollbar-color: var(--secondary) var(--background); 
+      }
+      .abeai-quick-options::-webkit-scrollbar {
+        width: 8px;
+      }
+      .abeai-quick-options::-webkit-scrollbar-track {
+        background: var(--background);
+      }
+      .abeai-quick-options::-webkit-scrollbar-thumb {
+        background: var(--secondary);
+        border-radius: 4px;
+      }
       .abeai-options-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
       .abeai-options-grid button { display: block; width: 100%; text-align: left; padding: 12px 16px; background: var(--secondary); color: white; border-radius: 6px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: var(--transition); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
       .abeai-options-grid button:hover { background: #a07965; transform: translateY(-2px); }
@@ -247,12 +285,32 @@ if (window.abeaiInitialized) {
       .abeai-input::placeholder { color: #666d70; opacity: 0.7; }
       .abeai-send-btn { background-color: var(--secondary); color: white; padding: 12px 16px; margin-left: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: var(--transition); }
       .abeai-send-btn:hover { background: #a07965; transform: translateY(-2px); }
-      .abeai-minimized { position: fixed; bottom: 30px; right: 30px; z-index: 9999; cursor: pointer; display: none; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+      .abeai-minimized { 
+        position: fixed; 
+        bottom: 30px; 
+        right: 30px; 
+        z-index: 9999; 
+        cursor: pointer; 
+        display: none; 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 8px; 
+        text-align: center; 
+      }
+      @media (max-width: 768px) {
+        .abeai-minimized { 
+          animation: glow 2s infinite ease-in-out; 
+        }
+      }
+      @keyframes glow {
+        0% { box-shadow: 0 0 5px var(--primary); }
+        50% { box-shadow: 0 0 20px var(--primary); }
+        100% { box-shadow: 0 0 5px var(--primary); }
+      }
       .abeai-bubble-hint { background: var(--primary); color: white; padding: 10px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; width: max-content; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
       .abeai-bubble-prompt { background: var(--primary); color: white; padding: 10px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; width: max-content; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-      .abeai-bubble { width: 64px; height: 64px; background: var(--background); border-radius: 50%; box-shadow: 0 4px 10px var(--shadow); display: flex; align-items: center; justify-content: center; animation: pulseBigger 2s infinite; border: 2px solid var(--secondary); }
+      .abeai-bubble { width: 64px; height: 64px; background: var(--background); border-radius: 50%; box-shadow: 0 4px 10px var(--shadow); display: flex; align-items: center; justify-content: center; border: 2px solid var(--secondary); }
       .abeai-bubble-logo { width: 40px; height: 40px; }
-      @keyframes pulseBigger { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
       @media (max-width: 480px) { .abeai-minimized { bottom: 20px; right: 20px; } }
     `;
 
@@ -269,12 +327,13 @@ if (window.abeaiInitialized) {
     const chatContainer = document.getElementById('chat-container');
     const chatMinimized = document.getElementById('chat-minimized');
     const chatToggle = document.getElementById('chat-toggle');
+    const predefinedSelections = document.getElementById('predefined-selections');
     const predefinedOptions = document.getElementById('predefined-options');
     const chatMessages = document.getElementById('chat-messages');
     const sendBtn = document.getElementById('send-btn');
     const chatInput = document.getElementById('chat-input');
 
-    if (!chatContainer || !chatMinimized || !chatToggle || !predefinedOptions || !chatMessages || !sendBtn || !chatInput) {
+    if (!chatContainer || !chatMinimized || !chatToggle || !predefinedSelections || !predefinedOptions || !chatMessages || !sendBtn || !chatInput) {
       console.error("🔥 Required DOM elements not found");
       return;
     }
@@ -384,9 +443,14 @@ if (window.abeaiInitialized) {
         userMessageElement.innerHTML = `<div class="abeai-message-content">${msg}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        // Removed hiding of predefined-selections to keep options scannable
+
+        // Hide preset options after first selection
+        if (!presetsUsed) {
+          predefinedSelections.style.display = 'none';
+          presetsUsed = true;
+        }
+
         await sendMessage(msg);
-        // Removed showing of predefined-selections since it's always visible
       };
       predefinedOptions.appendChild(button);
     });
