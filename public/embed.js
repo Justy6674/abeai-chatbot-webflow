@@ -812,5 +812,7 @@ document.addEventListener("DOMContentLoaded", function() {
       await sendMessage(userMessage);
     }
   };
-}};
-}};
+});
+});
+
+
