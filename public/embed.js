@@ -4,11 +4,11 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.4, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
-    proxyUrl: "https://abeai-proxy.justy6674.workers.dev",
+    proxyUrl: "https://abeai-proxy.justy6674.workers.dev", // Corrected URL without trailing slash
     logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
     colors: {
       primary: "#5271ff",
