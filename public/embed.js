@@ -19,14 +19,6 @@ if (window.abeaiInitialized) {
     }
   };
 
-  // Base prompt defining the bot's personality
-  const basePrompt = `
-You are AbeAI, an empathetic, data-driven health coach. 
-If the user asks about food, consider their allergies and suggest appropriate snacks or meals.
-If they ask about exercise, take into account time, fitness level, and motivation.
-Always suggest hydration. Never use shame, always motivational language.
-`;
-
   // User ID management
   const userId = localStorage.getItem("abeai_user_id") || crypto.randomUUID();
   if (!localStorage.getItem("abeai_user_id")) {
@@ -37,7 +29,8 @@ Always suggest hydration. Never use shame, always motivational language.
   let userContext = JSON.parse(localStorage.getItem("abeai_user_context")) || {
     allergies: [],
     fitnessLevel: "beginner",
-    motivationLevel: "moderate"
+    motivationLevel: "moderate",
+    isAustralian: false
   };
 
   // Save user context to localStorage
@@ -45,7 +38,7 @@ Always suggest hydration. Never use shame, always motivational language.
     localStorage.setItem("abeai_user_context", JSON.stringify(userContext));
   }
 
-  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "Premium";
+  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "PAYG";
 
   // Fallback responses
   const FALLBACK_RESPONSES = {
@@ -72,19 +65,11 @@ Always suggest hydration. Never use shame, always motivational language.
       chatMessages.appendChild(loadingMessage);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Prepare the full prompt with context
-      const fullPrompt = [
-        { role: "system", content: basePrompt },
-        { role: "user", content: userMessage }
-      ];
-
-      // Prepare the payload with user context
       const payload = {
         message: userMessage,
         user_id: userId,
         subscription_tier: userSubscriptionTier,
         user_context: userContext,
-        prompt: fullPrompt,
         ...additionalData
       };
       console.log("Sending payload to Worker:", payload);
@@ -116,12 +101,12 @@ Always suggest hydration. Never use shame, always motivational language.
       chatMessages.appendChild(botMessage);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Handle upgrade suggestion from Cloudflare
+      // Handle upgrade suggestion with link button
       if (data.upgrade_suggested) {
         const upgradeButton = document.createElement("button");
         upgradeButton.className = "abeai-upgrade-btn";
-        upgradeButton.textContent = "Explore Subscription Options";
-        upgradeButton.onclick = () => window.open("https://www.downscaleai.com/products", "_blank");
+        upgradeButton.innerHTML = "Explore Subscription Options";
+        upgradeButton.onclick = () => window.open("https://www.downscale.com.au", "_blank");
         chatMessages.appendChild(upgradeButton);
       }
 
@@ -142,7 +127,7 @@ Always suggest hydration. Never use shame, always motivational language.
         errorMessage.className = "abeai-message abeai-bot";
         errorMessage.innerHTML = `
           <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
-          <div class="abeai-message-content">Sorry, I couldn’t process that right now. Error: ${error.message}</div>
+          <div class="abeai-message-content">Sorry, I couldn’t process that right now. Let’s try something else! Error: ${error.message}</div>
         `;
         chatMessages.appendChild(errorMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -382,6 +367,10 @@ Always suggest hydration. Never use shame, always motivational language.
         else userContext.motivationLevel = "moderate";
         saveUserContext();
         return "Thanks for sharing! Your motivation level is set to " + userContext.motivationLevel + ". Let’s keep you motivated—how can I help?";
+      } else if (lowerMessage.includes("australian") || lowerMessage.includes("australia")) {
+        userContext.isAustralian = true;
+        saveUserContext();
+        return "Thanks for letting me know you're from Australia! I’ll tailor my advice accordingly. How can I assist you today?";
       }
       return null;
     }
@@ -395,7 +384,9 @@ Always suggest hydration. Never use shame, always motivational language.
         userMessageElement.innerHTML = `<div class="abeai-message-content">${msg}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Removed hiding of predefined-selections to keep options scannable
         await sendMessage(msg);
+        // Removed showing of predefined-selections since it's always visible
       };
       predefinedOptions.appendChild(button);
     });
