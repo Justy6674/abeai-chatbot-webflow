@@ -4,7 +4,7 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.4, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.5, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
@@ -19,19 +19,38 @@ if (window.abeaiInitialized) {
     }
   };
 
+  // Base prompt defining the bot's personality
+  const basePrompt = `
+You are AbeAI, an empathetic, data-driven health coach. 
+If the user asks about food, consider their allergies and suggest appropriate snacks or meals.
+If they ask about exercise, take into account time, fitness level, and motivation.
+Always suggest hydration. Never use shame, always motivational language.
+`;
+
   // User ID management
   const userId = localStorage.getItem("abeai_user_id") || crypto.randomUUID();
   if (!localStorage.getItem("abeai_user_id")) {
     localStorage.setItem("abeai_user_id", userId);
   }
 
-  // Temporarily set to Premium to bypass subscription limit for testing
-  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "Premium"; // Changed from "PAYG" to "Premium"
+  // User context management (allergies, fitness level, motivation)
+  let userContext = JSON.parse(localStorage.getItem("abeai_user_context")) || {
+    allergies: [],
+    fitnessLevel: "beginner",
+    motivationLevel: "moderate"
+  };
+
+  // Save user context to localStorage
+  function saveUserContext() {
+    localStorage.setItem("abeai_user_context", JSON.stringify(userContext));
+  }
+
+  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "Premium";
 
   // Fallback responses
   const FALLBACK_RESPONSES = {
-    welcome: "Hello! I'm AbeAI, your personal health coach. How can I help you today?",
-    generic: "I'm here to help with your health journey. Please ask a specific question."
+    welcome: "Hello! I'm AbeAI, your personal health coach. To provide the best advice, I’d love to know more about you. Do you have any allergies, or what’s your fitness level (beginner, intermediate, advanced)?",
+    generic: "I'm here to help with your health journey. Please ask a specific question about food, exercise, or calorie goals."
   };
 
   // Track if welcome message has been sent
@@ -53,19 +72,36 @@ if (window.abeaiInitialized) {
       chatMessages.appendChild(loadingMessage);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Send request to Cloudflare Worker
+      // Prepare the full prompt with context
+      const fullPrompt = [
+        { role: "system", content: basePrompt },
+        { role: "user", content: userMessage }
+      ];
+
+      // Prepare the payload with user context
+      const payload = {
+        message: userMessage,
+        user_id: userId,
+        subscription_tier: userSubscriptionTier,
+        user_context: userContext,
+        prompt: fullPrompt,
+        ...additionalData
+      };
+      console.log("Sending payload to Worker:", payload);
+
       const response = await fetch(CONFIG.proxyUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          user_id: userId,
-          subscription_tier: userSubscriptionTier,
-          ...additionalData
-        })
+        body: JSON.stringify(payload)
       });
 
       loadingMessage.remove();
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Worker response error:", response.status, errorText);
+        throw new Error(`Worker returned ${response.status}: ${errorText}`);
+      }
 
       const data = await response.json();
       let aiMessage = data.response || FALLBACK_RESPONSES.generic;
@@ -96,7 +132,7 @@ if (window.abeaiInitialized) {
 
       return aiMessage;
     } catch (error) {
-      console.error("🔥 Message processing failed:", error);
+      console.error("🔥 Message processing failed:", error.message);
       const chatMessages = document.getElementById('chat-messages');
       if (chatMessages) {
         const existingLoading = document.querySelector(".abeai-message.loading");
@@ -106,18 +142,17 @@ if (window.abeaiInitialized) {
         errorMessage.className = "abeai-message abeai-bot";
         errorMessage.innerHTML = `
           <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
-          <div class="abeai-message-content">Sorry, I couldn’t connect. Try again soon.</div>
+          <div class="abeai-message-content">Sorry, I couldn’t process that right now. Error: ${error.message}</div>
         `;
         chatMessages.appendChild(errorMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
-      return "Sorry, I couldn’t connect. Try again soon.";
+      return "Sorry, I couldn’t process that right now.";
     }
   }
 
   // Create chatbot UI (preserving format)
   function createChatbotUI() {
-    // Check if the container already exists to prevent duplicates
     if (document.getElementById("abeai-container")) {
       console.log("🟡 AbeAI container already exists, skipping UI creation...");
       return;
@@ -223,7 +258,7 @@ if (window.abeaiInitialized) {
       .abeai-options-grid button { display: block; width: 100%; text-align: left; padding: 12px 16px; background: var(--secondary); color: white; border-radius: 6px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: var(--transition); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
       .abeai-options-grid button:hover { background: #a07965; transform: translateY(-2px); }
       .abeai-input-area { display: flex; padding: 12px 16px; border-top: 2px solid var(--primary); background: white; }
-      .abeai-input { flex-grow: 1; border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 16px; color: #333333 !important; } /* Increased contrast for input text */
+      .abeai-input { flex-grow: 1; border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 16px; color: #333333 !important; }
       .abeai-input::placeholder { color: #666d70; opacity: 0.7; }
       .abeai-send-btn { background-color: var(--secondary); color: white; padding: 12px 16px; margin-left: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: var(--transition); }
       .abeai-send-btn:hover { background: #a07965; transform: translateY(-2px); }
@@ -236,7 +271,6 @@ if (window.abeaiInitialized) {
       @media (max-width: 480px) { .abeai-minimized { bottom: 20px; right: 20px; } }
     `;
 
-    // Remove any existing styles to prevent duplicates
     const existingStyles = document.getElementById("abeai-styles");
     if (existingStyles) existingStyles.remove();
 
@@ -244,7 +278,6 @@ if (window.abeaiInitialized) {
     document.head.appendChild(styleTag);
   }
 
-  // Initialize chatbot
   function initializeChatbot() {
     createChatbotUI();
 
@@ -288,6 +321,71 @@ if (window.abeaiInitialized) {
       "Suggest a simple home workout routine"
     ];
 
+    // Suggestions based on user input
+    const suggestions = {
+      "high protein": ["Give me 20 high-protein snack ideas", "Suggest a high-protein meal plan"],
+      "lunchbox": ["Create a kid-friendly lunchbox meal plan", "Suggest a healthy lunchbox for adults"],
+      "workout": ["Suggest a simple home workout routine", "What’s a quick 10-minute workout?"],
+      "calories": ["How many calories should I eat daily to lose weight?", "How many calories should I eat to gain muscle?"],
+      "bmi": ["Can you analyse my BMI?", "What’s a healthy BMI range?"]
+    };
+
+    function suggestRelatedQuestions(input) {
+      const lowerInput = input.toLowerCase();
+      for (const keyword in suggestions) {
+        if (lowerInput.includes(keyword)) {
+          const suggestionMessage = document.createElement("div");
+          suggestionMessage.className = "abeai-message abeai-bot";
+          suggestionMessage.innerHTML = `
+            <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
+            <div class="abeai-message-content">Did you mean: ${suggestions[keyword].join(" or ")}?</div>
+          `;
+          chatMessages.appendChild(suggestionMessage);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          break;
+        }
+      }
+    }
+
+    // Check for user context and prompt if missing
+    function checkUserContext() {
+      if (!userContext.allergies.length || !userContext.fitnessLevel) {
+        const contextPrompt = document.createElement("div");
+        contextPrompt.className = "abeai-message abeai-bot";
+        contextPrompt.innerHTML = `
+          <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
+          <div class="abeai-message-content">To provide the best advice, I’d love to know more about you. Do you have any allergies, or what’s your fitness level (beginner, intermediate, advanced)?</div>
+        `;
+        chatMessages.appendChild(contextPrompt);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+
+    // Handle user context input
+    function handleUserContextInput(message) {
+      const lowerMessage = message.toLowerCase();
+      if (lowerMessage.includes("allergy") || lowerMessage.includes("allergies")) {
+        if (lowerMessage.includes("nuts")) userContext.allergies.push("nuts");
+        if (lowerMessage.includes("dairy")) userContext.allergies.push("dairy");
+        if (lowerMessage.includes("gluten")) userContext.allergies.push("gluten");
+        saveUserContext();
+        return "Thanks for letting me know about your allergies! I’ll keep that in mind. What else can I help with?";
+      } else if (lowerMessage.includes("fitness level")) {
+        if (lowerMessage.includes("beginner")) userContext.fitnessLevel = "beginner";
+        else if (lowerMessage.includes("intermediate")) userContext.fitnessLevel = "intermediate";
+        else if (lowerMessage.includes("advanced")) userContext.fitnessLevel = "advanced";
+        saveUserContext();
+        return "Got it, your fitness level is set to " + userContext.fitnessLevel + ". How can I assist you today?";
+      } else if (lowerMessage.includes("motivation")) {
+        if (lowerMessage.includes("low")) userContext.motivationLevel = "low";
+        else if (lowerMessage.includes("high")) userContext.motivationLevel = "high";
+        else userContext.motivationLevel = "moderate";
+        saveUserContext();
+        return "Thanks for sharing! Your motivation level is set to " + userContext.motivationLevel + ". Let’s keep you motivated—how can I help?";
+      }
+      return null;
+    }
+
     predefinedMessages.forEach((msg) => {
       const button = document.createElement("button");
       button.textContent = msg;
@@ -297,9 +395,7 @@ if (window.abeaiInitialized) {
         userMessageElement.innerHTML = `<div class="abeai-message-content">${msg}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        // Removed hiding of predefined-selections to keep options scannable
         await sendMessage(msg);
-        // Removed showing of predefined-selections since it's always visible
       };
       predefinedOptions.appendChild(button);
     });
@@ -313,9 +409,26 @@ if (window.abeaiInitialized) {
         userMessageElement.innerHTML = `<div class="abeai-message-content">${userMessage}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        // Removed hiding of predefined-selections to keep options scannable
+
+        // Check for user context input
+        const contextResponse = handleUserContextInput(userMessage);
+        if (contextResponse) {
+          const contextMessage = document.createElement("div");
+          contextMessage.className = "abeai-message abeai-bot";
+          contextMessage.innerHTML = `
+            <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
+            <div class="abeai-message-content">${contextResponse}</div>
+          `;
+          chatMessages.appendChild(contextMessage);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          return;
+        }
+
+        // Suggest related questions
+        suggestRelatedQuestions(userMessage);
+
+        // Send the message to the Worker
         await sendMessage(userMessage);
-        // Removed showing of predefined-selections since it's always visible
       }
     };
 
@@ -329,18 +442,35 @@ if (window.abeaiInitialized) {
           userMessageElement.innerHTML = `<div class="abeai-message-content">${userMessage}</div>`;
           chatMessages.appendChild(userMessageElement);
           chatMessages.scrollTop = chatMessages.scrollHeight;
-          // Removed hiding of predefined-selections to keep options scannable
+
+          // Check for user context input
+          const contextResponse = handleUserContextInput(userMessage);
+          if (contextResponse) {
+            const contextMessage = document.createElement("div");
+            contextMessage.className = "abeai-message abeai-bot";
+            contextMessage.innerHTML = `
+              <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
+              <div class="abeai-message-content">${contextResponse}</div>
+            `;
+            chatMessages.appendChild(contextMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return;
+          }
+
+          // Suggest related questions
+          suggestRelatedQuestions(userMessage);
+
+          // Send the message to the Worker
           await sendMessage(userMessage);
-          // Removed showing of predefined-selections since it's always visible
         }
       }
     });
 
-    // Send welcome message only once after UI is ready
     if (!welcomeSent) {
       setTimeout(() => {
         if (document.getElementById("chat-input")) {
           sendMessage("welcome");
+          checkUserContext();
         } else {
           console.warn("🟡 chat-input not ready yet");
         }
@@ -348,14 +478,12 @@ if (window.abeaiInitialized) {
     }
   }
 
-  // Ensure DOM is fully loaded before initializing
   if (document.readyState === "complete" || document.readyState === "interactive") {
     initializeChatbot();
   } else {
     document.addEventListener("DOMContentLoaded", initializeChatbot, { once: true });
   }
 
-  // Debug Webflow re-execution
   window.addEventListener('beforeunload', () => {
     console.log("🟠 Page unloading, cleaning up AbeAI...");
     window.abeaiInitialized = false;
