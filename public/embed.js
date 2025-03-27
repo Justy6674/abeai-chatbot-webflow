@@ -4,11 +4,11 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.8, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.9, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
-    proxyUrl: "https://abeai-proxy.downscaleweightloss.workers.dev",
+    proxyUrl: "https://abeai.health/api", // Use custom route if set up, otherwise use "https://abeai-proxy.downscaleweightloss.workers.dev"
     logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
     colors: {
       primary: "#5271ff",
