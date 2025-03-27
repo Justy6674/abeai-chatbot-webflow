@@ -2,7 +2,7 @@ console.log("🟢 AbeAI Chatbot initializing");
 
 // Configuration
 const CONFIG = {
-  proxyUrl: "https://abeai-proxy.justy6674.workers.dev", // New Cloudflare Worker URL
+  proxyUrl: "https://abeai-proxy.justy6674.workers.dev",
   logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
   colors: {
     primary: "#5271ff",
@@ -21,11 +21,14 @@ if (!localStorage.getItem("abeai_user_id")) {
 
 let userSubscriptionTier = localStorage.getItem("abeai_tier") || "PAYG";
 
-// Fallback responses (simplified from first code)
+// Fallback responses
 const FALLBACK_RESPONSES = {
   welcome: "Hello! I'm AbeAI, your personal health coach. How can I help you today?",
   generic: "I'm here to help with your health journey. Please ask a specific question."
 };
+
+// Track if welcome message has been sent
+let welcomeSent = false;
 
 // Send message via Cloudflare Worker
 async function sendMessage(userMessage, additionalData = {}) {
@@ -57,11 +60,7 @@ async function sendMessage(userMessage, additionalData = {}) {
     loadingMessage.remove();
 
     const data = await response.json();
-
-let aiMessage = FALLBACK_RESPONSES.generic;
-if (data && typeof data.response === "string" && data.response.trim().length > 0) {
-  aiMessage = data.response;
-}
+    let aiMessage = data.response || FALLBACK_RESPONSES.generic;
 
     // Bot message
     const botMessage = document.createElement("div");
@@ -80,6 +79,11 @@ if (data && typeof data.response === "string" && data.response.trim().length > 0
       upgradeButton.textContent = "Explore Subscription Options";
       upgradeButton.onclick = () => window.open("https://www.downscaleai.com/products", "_blank");
       chatMessages.appendChild(upgradeButton);
+    }
+
+    // Mark welcome as sent if this was the welcome message
+    if (userMessage === "welcome") {
+      welcomeSent = true;
     }
 
     return aiMessage;
@@ -101,7 +105,7 @@ if (data && typeof data.response === "string" && data.response.trim().length > 0
   }
 }
 
-// Create chatbot UI (preserving first code's format)
+// Create chatbot UI (preserving format)
 function createChatbotUI() {
   const chatbotContainer = document.createElement("div");
   chatbotContainer.id = "abeai-container";
@@ -305,12 +309,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
- // Safe welcome load after chatbot UI + inputs are ready
-setTimeout(() => {
-  if (document.getElementById("chat-input")) {
-    sendMessage("welcome");
-  } else {
-    console.warn("🟡 chat-input not ready yet");
-  }
-}, 1000);
+  // Send welcome message only once after UI is ready
+  setTimeout(() => {
+    if (!welcomeSent && document.getElementById("chat-input")) {
+      sendMessage("welcome");
+    } else if (!document.getElementById("chat-input")) {
+      console.warn("🟡 chat-input not ready yet");
+    }
+  }, 1000);
 });
