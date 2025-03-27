@@ -116,6 +116,12 @@ if (window.abeaiInitialized) {
 
   // Create chatbot UI (preserving format)
   function createChatbotUI() {
+    // Check if the container already exists to prevent duplicates
+    if (document.getElementById("abeai-container")) {
+      console.log("🟡 AbeAI container already exists, skipping UI creation...");
+      return;
+    }
+
     const chatbotContainer = document.createElement("div");
     chatbotContainer.id = "abeai-container";
     chatbotContainer.innerHTML = `
@@ -146,6 +152,7 @@ if (window.abeaiInitialized) {
     `;
 
     const styleTag = document.createElement("style");
+    styleTag.id = "abeai-styles";
     styleTag.textContent = `
       #abeai-container {
         font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -226,6 +233,10 @@ if (window.abeaiInitialized) {
       @keyframes pulseBigger { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
       @media (max-width: 480px) { .abeai-minimized { bottom: 20px; right: 20px; } }
     `;
+
+    // Remove any existing styles to prevent duplicates
+    const existingStyles = document.getElementById("abeai-styles");
+    if (existingStyles) existingStyles.remove();
 
     document.body.appendChild(chatbotContainer);
     document.head.appendChild(styleTag);
@@ -339,6 +350,12 @@ if (window.abeaiInitialized) {
   if (document.readyState === "complete" || document.readyState === "interactive") {
     initializeChatbot();
   } else {
-    document.addEventListener("DOMContentLoaded", initializeChatbot);
+    document.addEventListener("DOMContentLoaded", initializeChatbot, { once: true });
   }
+
+  // Debug Webflow re-execution
+  window.addEventListener('beforeunload', () => {
+    console.log("🟠 Page unloading, cleaning up AbeAI...");
+    window.abeaiInitialized = false;
+  });
 }
