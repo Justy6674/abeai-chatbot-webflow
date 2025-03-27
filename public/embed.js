@@ -57,7 +57,11 @@ async function sendMessage(userMessage, additionalData = {}) {
     loadingMessage.remove();
 
     const data = await response.json();
-    const aiMessage = data.response || FALLBACK_RESPONSES.generic;
+
+let aiMessage = FALLBACK_RESPONSES.generic;
+if (data && typeof data.response === "string" && data.response.trim().length > 0) {
+  aiMessage = data.response;
+}
 
     // Bot message
     const botMessage = document.createElement("div");
