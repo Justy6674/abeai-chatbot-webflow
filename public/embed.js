@@ -1,4 +1,4 @@
-// AbeAI Chatbot - Full Embed Script with Working Logo and Cloudflare Proxy
+// AbeAI Chatbot - Complete Implementation with Monetization Triggers and Vercel-Hosted Logo
 console.log("🟢 AbeAI Chatbot initializing");
 
 const CONFIG = {
