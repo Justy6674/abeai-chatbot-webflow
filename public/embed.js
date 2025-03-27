@@ -1,10 +1,10 @@
 // Guard to prevent multiple script executions
 if (window.abeaiInitialized) {
-  console.log("🟡 AbeAI already initialized, skipping...");
+  console.log("🟡 AbeAI already initialized, skipping... (Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing");
+  console.log("🟢 AbeAI Chatbot initializing (Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
