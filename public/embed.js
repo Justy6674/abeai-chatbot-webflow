@@ -301,5 +301,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
-  setTimeout(async () => await sendMessage("welcome"), 1000);
+ // Safe welcome load after chatbot UI + inputs are ready
+setTimeout(() => {
+  if (document.getElementById("chat-input")) {
+    sendMessage("welcome");
+  } else {
+    console.warn("🟡 chat-input not ready yet");
+  }
+}, 1000);
 });
