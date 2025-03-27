@@ -4,7 +4,7 @@ if (window.abeaiInitialized) {
 } else {
   window.abeaiInitialized = true;
 
-  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.7, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
+  console.log("🟢 AbeAI Chatbot initializing (Version: 1.0.8, Script source: ", document.currentScript ? document.currentScript.src : "inline script", ")");
 
   // Configuration
   const CONFIG = {
@@ -208,10 +208,13 @@ if (window.abeaiInitialized) {
       }
       @media (max-width: 768px) {
         .abeai-chatbox { 
-          width: calc(100vw - 40px); 
-          max-height: 70vh; 
-          bottom: 20px; 
-          right: 20px; 
+          top: 0; /* Expand to top on mobile */
+          bottom: 0; /* Expand to bottom on mobile */
+          right: 0;
+          width: 100vw; /* Full width on mobile */
+          height: 100vh; /* Full height on mobile */
+          max-height: none; /* Remove max-height constraint */
+          border-radius: 0; /* No border radius on mobile for full-screen effect */
         }
       }
       .abeai-header {
@@ -225,6 +228,12 @@ if (window.abeaiInitialized) {
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid var(--secondary);
+      }
+      @media (max-width: 768px) {
+        .abeai-header {
+          border-radius: 0; /* No border radius on mobile */
+          padding: 12px; /* Slightly smaller padding on mobile */
+        }
       }
       .abeai-brand { display: flex; align-items: center; }
       .abeai-logo { width: 30px; height: 30px; margin-right: 10px; }
@@ -241,7 +250,9 @@ if (window.abeaiInitialized) {
       }
       @media (max-width: 768px) {
         .abeai-messages { 
-          height: 300px; /* Adjusted height on mobile */
+          height: auto; /* Allow messages to take remaining space */
+          flex-grow: 1; /* Expand to fill available space */
+          padding: 12px; /* Slightly smaller padding on mobile */
         }
       }
       .abeai-message { margin-bottom: 16px; display: flex; align-items: flex-start; }
@@ -297,21 +308,54 @@ if (window.abeaiInitialized) {
         gap: 8px; 
         text-align: center; 
       }
-      @media (max-width: 768px) {
-        .abeai-minimized { 
-          animation: glow 2s infinite ease-in-out; 
-        }
+      .abeai-bubble-hint { 
+        background: var(--primary); 
+        color: white; 
+        padding: 10px 16px; 
+        border-radius: 6px; 
+        font-size: 15px; 
+        font-weight: 600; 
+        width: max-content; 
+        text-align: center; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        animation: magnify 2s infinite ease-in-out; 
       }
-      @keyframes glow {
-        0% { box-shadow: 0 0 5px var(--primary); }
-        50% { box-shadow: 0 0 20px var(--primary); }
-        100% { box-shadow: 0 0 5px var(--primary); }
+      .abeai-bubble { 
+        width: 64px; 
+        height: 64px; 
+        background: var(--background); 
+        border-radius: 50%; 
+        box-shadow: 0 4px 10px var(--shadow); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border: 2px solid var(--secondary); 
+        animation: magnify 2s infinite ease-in-out; 
       }
-      .abeai-bubble-hint { background: var(--primary); color: white; padding: 10px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; width: max-content; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-      .abeai-bubble-prompt { background: var(--primary); color: white; padding: 10px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; width: max-content; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-      .abeai-bubble { width: 64px; height: 64px; background: var(--background); border-radius: 50%; box-shadow: 0 4px 10px var(--shadow); display: flex; align-items: center; justify-content: center; border: 2px solid var(--secondary); }
+      .abeai-bubble-prompt { 
+        background: var(--primary); 
+        color: white; 
+        padding: 10px 16px; 
+        border-radius: 6px; 
+        font-size: 15px; 
+        font-weight: 600; 
+        width: max-content; 
+        text-align: center; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        animation: magnify 2s infinite ease-in-out; 
+      }
+      @keyframes magnify {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
       .abeai-bubble-logo { width: 40px; height: 40px; }
-      @media (max-width: 480px) { .abeai-minimized { bottom: 20px; right: 20px; } }
+      @media (max-width: 480px) { 
+        .abeai-minimized { 
+          bottom: 20px; 
+          right: 20px; 
+        } 
+      }
     `;
 
     const existingStyles = document.getElementById("abeai-styles");
