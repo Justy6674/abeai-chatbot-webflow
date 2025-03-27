@@ -8,7 +8,7 @@ if (window.abeaiInitialized) {
 
   // Configuration
   const CONFIG = {
-    proxyUrl: "https://abeai-proxy.downscaleweightloss.workers.dev", // Corrected Cloudflare Worker URL
+    proxyUrl: "https://abeai-proxy.downscaleweightloss.workers.dev",
     logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
     colors: {
       primary: "#5271ff",
@@ -25,7 +25,8 @@ if (window.abeaiInitialized) {
     localStorage.setItem("abeai_user_id", userId);
   }
 
-  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "PAYG";
+  // Temporarily set to Premium to bypass subscription limit for testing
+  let userSubscriptionTier = localStorage.getItem("abeai_tier") || "Premium"; // Changed from "PAYG" to "Premium"
 
   // Fallback responses
   const FALLBACK_RESPONSES = {
@@ -222,7 +223,8 @@ if (window.abeaiInitialized) {
       .abeai-options-grid button { display: block; width: 100%; text-align: left; padding: 12px 16px; background: var(--secondary); color: white; border-radius: 6px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: var(--transition); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
       .abeai-options-grid button:hover { background: #a07965; transform: translateY(-2px); }
       .abeai-input-area { display: flex; padding: 12px 16px; border-top: 2px solid var(--primary); background: white; }
-      .abeai-input { flex-grow: 1; border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 16px; }
+      .abeai-input { flex-grow: 1; border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 16px; color: #333333 !important; } /* Increased contrast for input text */
+      .abeai-input::placeholder { color: #666d70; opacity: 0.7; }
       .abeai-send-btn { background-color: var(--secondary); color: white; padding: 12px 16px; margin-left: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: var(--transition); }
       .abeai-send-btn:hover { background: #a07965; transform: translateY(-2px); }
       .abeai-minimized { position: fixed; bottom: 30px; right: 30px; z-index: 9999; cursor: pointer; display: none; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
@@ -295,9 +297,9 @@ if (window.abeaiInitialized) {
         userMessageElement.innerHTML = `<div class="abeai-message-content">${msg}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        document.getElementById('predefined-selections').style.display = 'none';
+        // Removed hiding of predefined-selections to keep options scannable
         await sendMessage(msg);
-        document.getElementById('predefined-selections').style.display = 'block';
+        // Removed showing of predefined-selections since it's always visible
       };
       predefinedOptions.appendChild(button);
     });
@@ -311,9 +313,9 @@ if (window.abeaiInitialized) {
         userMessageElement.innerHTML = `<div class="abeai-message-content">${userMessage}</div>`;
         chatMessages.appendChild(userMessageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        document.getElementById('predefined-selections').style.display = 'none';
+        // Removed hiding of predefined-selections to keep options scannable
         await sendMessage(userMessage);
-        document.getElementById('predefined-selections').style.display = 'block';
+        // Removed showing of predefined-selections since it's always visible
       }
     };
 
@@ -327,9 +329,9 @@ if (window.abeaiInitialized) {
           userMessageElement.innerHTML = `<div class="abeai-message-content">${userMessage}</div>`;
           chatMessages.appendChild(userMessageElement);
           chatMessages.scrollTop = chatMessages.scrollHeight;
-          document.getElementById('predefined-selections').style.display = 'none';
+          // Removed hiding of predefined-selections to keep options scannable
           await sendMessage(userMessage);
-          document.getElementById('predefined-selections').style.display = 'block';
+          // Removed showing of predefined-selections since it's always visible
         }
       }
     });
