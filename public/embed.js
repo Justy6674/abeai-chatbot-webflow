@@ -8,7 +8,7 @@ if (window.abeaiInitialized) {
 
   // Configuration
   const CONFIG = {
-    proxyUrl: "https://abeai-proxy.justy6674.workers.dev", // Corrected URL without trailing slash
+    proxyUrl: "https://abeai-proxy.downscaleweightloss.workers.dev", // Corrected Cloudflare Worker URL
     logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
     colors: {
       primary: "#5271ff",
