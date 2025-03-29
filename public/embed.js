@@ -565,10 +565,10 @@ if (window.abeaiInitialized) {
       }
     });
 
-   if (!welcomeSent) {
+  if (!welcomeSent) {
   setTimeout(() => {
     if (document.getElementById("chat-input")) {
-      const chatMessages = document.getElementById('chat-messages'); // <-- explicitly declare chatMessages here
+      const chatMessages = document.getElementById('chat-messages'); // explicitly declare chatMessages here
       checkUserContext();
 
       // Frontend-only welcome message (no backend call)
