@@ -565,17 +565,27 @@ if (window.abeaiInitialized) {
       }
     });
 
-    if (!welcomeSent) {
-      setTimeout(() => {
-        if (document.getElementById("chat-input")) {
-          sendMessage("welcome");
-          checkUserContext();
-        } else {
-          console.warn("🟡 chat-input not ready yet");
-        }
-      }, 1000);
+   if (!welcomeSent) {
+  setTimeout(() => {
+    if (document.getElementById("chat-input")) {
+      checkUserContext();
+
+      // Frontend-only welcome message (no backend call)
+      const welcomeMessageElement = document.createElement("div");
+      welcomeMessageElement.className = "abeai-message abeai-bot";
+      welcomeMessageElement.innerHTML = `
+        <img src="${CONFIG.logoUrl}" class="abeai-avatar" alt="AbeAI Logo" />
+        <div class="abeai-message-content">${FALLBACK_RESPONSES.welcome}</div>
+      `;
+      chatMessages.appendChild(welcomeMessageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      welcomeSent = true;
+    } else {
+      console.warn("🟡 chat-input not ready yet");
     }
-  }
+  }, 1000);
+}
 
   if (document.readyState === "complete" || document.readyState === "interactive") {
     initializeChatbot();
