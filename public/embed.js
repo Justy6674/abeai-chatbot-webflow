@@ -8,7 +8,7 @@ if (window.abeaiInitialized) {
 
   // Configuration
   const CONFIG = {
-    proxyUrl: "https://api.abeai.health", // Custom route now fully set up
+    proxyUrl: "https://abcai-gpi-worker.Justy6674.workers.dev", // Custom route now fully set up
     logoUrl: "https://abeai-chatbot-webflow-y8ks.vercel.app/abeailogo.png",
     colors: {
       primary: "#5271ff",
