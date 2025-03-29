@@ -586,7 +586,7 @@ if (window.abeaiInitialized) {
       console.warn("🟡 chat-input not ready yet");
     }
   }, 1000);
-}
+} // <-- This closing brace was missing
 
   if (document.readyState === "complete" || document.readyState === "interactive") {
     initializeChatbot();
