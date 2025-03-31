@@ -303,7 +303,7 @@ if (window.abeaiInitialized) {
       
       if (data.error) throw new Error(data.error);
       
-      displayMessage(data.response);
+      displayMessage(data.message);
       if (data.upgrade_suggested) {
         const upgradeButton = document.createElement("button");
         upgradeButton.className = "abeai-upgrade-btn";
